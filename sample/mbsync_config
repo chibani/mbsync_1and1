@@ -1,0 +1,44 @@
+#IMAP server you wish to copy mails from.
+IMAPAccount original
+Host imap.1and1.fr
+User USERNAME@example.com
+Pass PASSWORD
+
+ # The IMAP server you wish to copy mails to.
+IMAPAccount target
+Host 1.exchange.1and1.eu
+User USERNAME@example.com
+Pass PASSWORD
+AuthMechs LOGIN
+SSLType IMAPS
+PipelineDepth 1
+
+ # Link IMAP server to remote used below. Note Account is set to 'original' now -- we'll be set it to 'target' later!
+IMAPStore my-remote
+Account original
+
+IMAPStore my-exchange
+Account target
+
+ # The local storage we'll be using. Note the trailing slash at the end of the Path!
+MaildirStore my-local
+Path ./mails/
+Inbox ./mails/Inbox
+
+ # This is where the magic happens. Note Sync is set to 'Pull' now -- we'll set it to 'Push' later!
+Channel download
+Master :my-remote:
+Slave :my-local:
+Patterns *
+Create Both
+Sync Pull
+SyncState *
+
+
+Channel upload
+Master :my-exchange:
+Slave :my-local:
+Patterns *
+Create Both
+Sync Push
+SyncState *
